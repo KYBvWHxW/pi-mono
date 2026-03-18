@@ -10,6 +10,13 @@ process.title = "pi";
 import { EnvHttpProxyAgent, setGlobalDispatcher } from "undici";
 import { main } from "./main.js";
 
-setGlobalDispatcher(new EnvHttpProxyAgent());
+// Fix timeout issue: https://github.com/badlogic/pi-mono/issues/2257
+// Default undici timeout is 300s, extend to 1 hour for long-running LLM calls
+setGlobalDispatcher(
+	new EnvHttpProxyAgent({
+		bodyTimeout: 3600_000, // 1 hour
+		headersTimeout: 3600_000, // 1 hour
+	}),
+);
 
 main(process.argv.slice(2));
